@@ -33,9 +33,15 @@ const addContact = async (body) => {
 
 const updateContact = async (contactId, body) => {
   const contact = await getContactById(contactId);
-  const newContact = {...contact, ...body}
+  const newContact = {...contact, ...body};
   const contacts = await listContacts();
-  contacts.push(newContact);
+
+  contacts.forEach((contact, idx) => {
+    if (contact.id === contactId){
+      contacts[idx] = newContact;
+    }
+  });
+
   await fs.writeFile(contactsPath, JSON.stringify(contacts));
 
   return newContact

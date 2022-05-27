@@ -10,7 +10,7 @@ class ContactController {
   async getAllContacts(req, res) {
     const contacts = await listContacts();
 
-    return res.status(200).send(contacts);
+    res.status(200).send(contacts);
   }
 
   async getContactById(req, res) {
@@ -19,14 +19,12 @@ class ContactController {
 
     if (!contact) res.status(404).send({ message: "Not found" });
 
-    return res.status(200).send(contact);
+    res.status(200).send(contact);
   }
 
   async createContact(req, res) {
     const contact = req.body;
     const newContact = await addContact(contact);
-
-    // Проверку на боди
 
     res.status(201).send(newContact);
   }
@@ -39,7 +37,7 @@ class ContactController {
 
     await removeContact(existContact.id);
 
-    return res.status(200).send({ message: "contact deleted" });
+    res.status(200).send({ message: "contact deleted" });
   }
 
   async updateContact(req, res) {
@@ -52,7 +50,7 @@ class ContactController {
 
     const updatedContact = await updateContact(contactId, contact);
 
-    return res.status(200).send(updatedContact);
+    res.status(200).send(updatedContact);
   }
 }
 
