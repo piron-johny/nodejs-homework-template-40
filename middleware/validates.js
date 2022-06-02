@@ -1,6 +1,5 @@
 const checkContacRequest = () => async (req, res, next) => {
   const contact = req.body;
-  console.log("contact", contact);
 
   if (Object.keys(contact).length === 0)
     return res.status(400).send({ message: "missing fields" });

@@ -2,7 +2,7 @@ const express = require("express");
 const contactController = require("../../controllers/contacts.controller");
 const { catchHandler } = require("../../middleware/catchHandler");
 const { checkContacRequest, validate } = require("../../middleware/validates");
-const { contactShema } = require("../../shema/contact.shema");
+const { shemaJoiCreate, shemaJoiUpdate, shemaJoiFavorite } = require("../../models/contact");
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.get(
 
 router.post(
   "/",
-  [validate(contactShema)],
+  [checkContacRequest(), validate(shemaJoiCreate)],
   catchHandler(contactController.createContact.bind(contactController))
 );
 
@@ -29,7 +29,13 @@ router.delete(
 
 router.put(
   "/:contactId",
-  [checkContacRequest()],
+  [checkContacRequest(), validate(shemaJoiUpdate)],
+  catchHandler(contactController.updateContact.bind(contactController))
+);
+
+router.patch(
+  "/:contactId/favorite",
+  [checkContacRequest(), validate(shemaJoiFavorite)],
   catchHandler(contactController.updateContact.bind(contactController))
 );
 
