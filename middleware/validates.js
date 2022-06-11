@@ -1,7 +1,7 @@
-const checkContacRequest = () => async (req, res, next) => {
-  const contact = req.body;
+const checkRequest = () => async (req, res, next) => {
+  const body = req.body;
 
-  if (Object.keys(contact).length === 0)
+  if (Object.keys(body).length === 0)
     return res.status(400).send({ message: "missing fields" });
 
   next();
@@ -17,4 +17,4 @@ const validate = (schema) => async (req, res, next) => {
   next();
 };
 
-module.exports = { checkContacRequest, validate };
+module.exports = { checkRequest, validate };
