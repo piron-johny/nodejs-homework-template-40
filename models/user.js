@@ -30,6 +30,10 @@ const shemaJoiCreate = Joi.object().keys({
   password: Joi.string().required().min(6),
 });
 
+const shemaJoiUpdateSubscription = Joi.object().keys({
+  subscription: Joi.string().valid('starter', 'pro', 'business')
+});
+
 const User = model("user", userShema);
 
-module.exports = { User, shemaJoiCreate };
+module.exports = { User, shemaJoiCreate, shemaJoiUpdateSubscription };

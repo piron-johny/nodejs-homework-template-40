@@ -1,6 +1,7 @@
 const userService = require("../services/user.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { token } = require("morgan");
 require("dotenv").config();
 
 class AuthController {
@@ -41,7 +42,7 @@ class AuthController {
     const token = jwt.sign(payload, process.env.SECRET_KEY, {
       expiresIn: "1d",
     });
-    await this.userService.updateUser({id: user.id, token})
+    await this.userService.updateUser({ id: user.id, token })
 
     res
       .status(200)
@@ -49,6 +50,13 @@ class AuthController {
         token,
         user: { email: user.email, subscription: user.subscription },
       });
+  }
+
+  async logout(req, res) {
+    const { id } = req.user;
+    await this.userService.updateUser({ id, token: null })
+    
+    res.status(204).send()
   }
 }
 

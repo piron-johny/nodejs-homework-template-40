@@ -7,9 +7,19 @@ class ContactController {
   }
 
   async getAllContacts(req, res) {
-    const contacts = await contactService.listContacts();
+    const { favorite, page, limit } = req.query;
+    const { id } = req.user;
+    const skip = (page - 1) * limit;
 
-    res.status(200).send(contacts);
+    if (!!favorite) {
+      const favoriteCcontacts = await contactService
+        .favoriteListContacts(id, !!favorite, skip, limit);
+      res.status(200).send(favoriteCcontacts);
+    } else {
+      const contacts = await contactService.listContacts(id, skip, limit);
+      res.status(200).send(contacts);
+    }
+
   }
 
   async getContactById(req, res) {
@@ -22,8 +32,9 @@ class ContactController {
   }
 
   async createContact(req, res) {
+    const { id } = req.user
     const contact = req.body;
-    const newContact = await this.contactService.addContact(contact);
+    const newContact = await this.contactService.addContact({ ...contact, owner: id });
 
     res.status(201).send(newContact);
   }
