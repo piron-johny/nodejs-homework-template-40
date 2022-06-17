@@ -1,4 +1,5 @@
 const userService = require("../services/user.service");
+const authService = require("../services/auth.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { token } = require("morgan");
@@ -6,8 +7,10 @@ require("dotenv").config();
 
 class AuthController {
   userService;
-  constructor(userService) {
+  authService;
+  constructor(userService, authService) {
     this.userService = userService;
+    this.authService = authService;
   }
 
   async signup(req, res) {
@@ -16,15 +19,9 @@ class AuthController {
 
     if (existUser) return res.status(409).send({ message: "Email in use" });
 
-    const hashPass = await bcrypt.hash(password, 6);
-    const newUser = await this.userService.createUser({
-      email,
-      password: hashPass,
-    });
+    const newUser = await this.authService.signup(email, password);
 
-    res
-      .status(201)
-      .send({ email: newUser.email, subscription: newUser.subscription });
+    res.status(201).send(newUser);
   }
 
   async signin(req, res) {
@@ -38,27 +35,18 @@ class AuthController {
     if (!isVallidPAss)
       return res.status(401).send({ message: "Invalid Credentials" });
 
-    const payload = { id: user.id };
-    const token = jwt.sign(payload, process.env.SECRET_KEY, {
-      expiresIn: "1d",
-    });
-    await this.userService.updateUser({ id: user.id, token })
+    const userResponse = await this.authService.signin(user.id)
 
-    res
-      .status(200)
-      .send({
-        token,
-        user: { email: user.email, subscription: user.subscription },
-      });
+    res.status(200).send(userResponse);
   }
 
   async logout(req, res) {
     const { id } = req.user;
-    await this.userService.updateUser({ id, token: null })
-    
-    res.status(204).send()
+    await this.userService.updateUser({ id, token: null });
+
+    res.status(204).send();
   }
 }
 
-const authController = new AuthController(userService);
+const authController = new AuthController(userService, authService);
 module.exports = authController;

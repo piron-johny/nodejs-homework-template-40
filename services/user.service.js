@@ -1,5 +1,5 @@
 const { User } = require("../models/user");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 class UserService {
   async getUserById(userId) {
@@ -19,7 +19,11 @@ class UserService {
   }
 
   async updateUser(body) {
-    return await User.findByIdAndUpdate(body.id, {...body});
+    return await User.findByIdAndUpdate(body.id, { ...body }, { new: true });
+  }
+
+  async updateUserAvatar(id, avatarUrl) {
+    return await User.findByIdAndUpdate(id, { avatarUrl }, { new: true });
   }
 }
 

@@ -2,6 +2,7 @@ const express = require("express");
 const userController = require("../../controllers/users.controller");
 const auth = require("../../middleware/auth");
 const { catchHandler } = require("../../middleware/catchHandler");
+const upload = require("../../middleware/upload");
 const { validate } = require("../../middleware/validates");
 const { shemaJoiUpdateSubscription } = require("../../models/user");
 
@@ -16,6 +17,11 @@ router.put(
   "/subscription",
   [auth, validate(shemaJoiUpdateSubscription)],
   catchHandler(userController.updateUserSubscription.bind(userController))
+);
+router.patch(
+  "/avatars",
+  [auth, upload.single('avatar')],
+  catchHandler(userController.updateUserAvatar.bind(userController))
 );
 router.delete(
   "/:userId",

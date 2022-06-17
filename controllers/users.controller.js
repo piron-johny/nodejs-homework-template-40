@@ -1,4 +1,7 @@
 const userService = require("../services/user.service");
+const path = require('path');
+const fs = require('fs').promises;
+const Jimp = require('jimp');
 
 class UserController {
   userService;
@@ -21,7 +24,6 @@ class UserController {
     res.status(200).send({ email, id, subscription });
   }
 
-
   async updateUserSubscription(req, res) {
     const { id } = req.user;
     const { subscription } = req.body;
@@ -30,6 +32,28 @@ class UserController {
     if (!user) return res.status(404).send({ message: "Not found" });
 
     res.status(200).send({ message: "user subscription updated" });
+  }
+
+  async updateUserAvatar(req, res) {
+    const { path: avatarPath, originalname } = req.file;
+    const { id } = req.user;
+    const avatarsDir = path.join(process.cwd(), 'public', 'avatars');
+    const ext = path.extname(originalname);
+    const avatrName = `${id}${ext}`
+    const resUpload = path.join(avatarsDir, avatrName);
+    const avatarUrl = path.join('public', 'avatars', avatrName)
+    
+    try {
+      await fs.rename(avatarPath, resUpload);
+      await this.userService.updateUserAvatar(id, avatarUrl);
+      const avatar = await Jimp.read(resUpload);
+      avatar.resize(250, 250).write(resUpload);
+
+      res.status(200).send({ avatarUrl });
+    } catch (err) {
+      await fs.unlink(avatarPath);
+      throw err
+    }
   }
 
   async deleteUser(req, res) {
