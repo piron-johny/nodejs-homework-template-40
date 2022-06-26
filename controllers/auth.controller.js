@@ -2,7 +2,6 @@ const userService = require("../services/user.service");
 const authService = require("../services/auth.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { token } = require("morgan");
 require("dotenv").config();
 
 class AuthController {
@@ -35,14 +34,14 @@ class AuthController {
     if (!isVallidPAss)
       return res.status(401).send({ message: "Invalid Credentials" });
 
-    const userResponse = await this.authService.signin(user.id)
+    const userResponse = await this.authService.signin(user.id);
 
     res.status(200).send(userResponse);
   }
 
   async logout(req, res) {
     const { id } = req.user;
-    await this.userService.updateUser({ id, token: null });
+    await this.userService.updateUser(id, { token: null });
 
     res.status(204).send();
   }

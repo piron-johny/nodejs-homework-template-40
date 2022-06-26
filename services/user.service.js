@@ -1,5 +1,6 @@
 const { User } = require("../models/user");
-const bcrypt = require("bcrypt");
+const sendEmail = require("../utils/sendEmail");
+require("dotenv").config();
 
 class UserService {
   async getUserById(userId) {
@@ -10,6 +11,10 @@ class UserService {
     return await User.findOne({ email });
   }
 
+  async getUserByVerificationToken(verificationToken) {
+    return await User.findOne({ verificationToken });
+  }
+
   async removeUser(userId) {
     return await User.findByIdAndRemove(userId);
   }
@@ -18,12 +23,18 @@ class UserService {
     return await User.create(body);
   }
 
-  async updateUser(body) {
-    return await User.findByIdAndUpdate(body.id, { ...body }, { new: true });
+  async updateUser(id, body) {
+    console.log("body", body);
+    return await User.findByIdAndUpdate(id, body, { new: true });
   }
 
-  async updateUserAvatar(id, avatarUrl) {
-    return await User.findByIdAndUpdate(id, { avatarUrl }, { new: true });
+  async sendVerifyMsg(email, verificationToken) {
+    const msg = {
+      to: email,
+      subject: 'Verify Email',
+      html: `<a target="_blank" href="${process.env.DOMAIN_HOST}/api/users/verify/${verificationToken}">Click to verify your Email</a>`,
+    }
+    await sendEmail(msg);
   }
 }
 

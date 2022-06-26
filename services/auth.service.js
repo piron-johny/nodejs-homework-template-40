@@ -1,7 +1,7 @@
 const userService = require("./user.service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
+const crypto = require('crypto');
 
 class AuthService {
   userService;
@@ -11,6 +11,7 @@ class AuthService {
 
   async signup(email, password) {
     const hashPass = await bcrypt.hash(password, 6);
+    const verificationToken = crypto.randomUUID();
     const {
       email: newUserEmail,
       subscription,
@@ -18,7 +19,10 @@ class AuthService {
     } = await this.userService.createUser({
       email,
       password: hashPass,
+      verificationToken,
     });
+
+    await this.userService.sendVerifyMsg(newUserEmail, verificationToken);
 
     return { email: newUserEmail, subscription, avatarUrl };
   }
@@ -28,7 +32,7 @@ class AuthService {
     const token = jwt.sign(payload, process.env.SECRET_KEY, {
       expiresIn: "1d",
     });
-    const { email, subscription } = await this.userService.updateUser({ id, token });
+    const { email, subscription } = await this.userService.updateUser(id, { token });
 
     return {
       token,
@@ -38,7 +42,7 @@ class AuthService {
 
   async logout(req, res) {
     const { id } = req.user;
-    await this.userService.updateUser({ id, token: null });
+    await this.userService.updateUser( id, { token: null });
 
     res.status(204).send();
   }

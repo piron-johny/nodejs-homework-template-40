@@ -26,6 +26,14 @@ const userShema = new Schema(
       type: String,
       default: () => gravatar.url(this.email, {}, true),
     },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, "Verify token is required"],
+    },
   },
   { versionKey: false, timestamps: true }
 );
@@ -33,13 +41,21 @@ const userShema = new Schema(
 const shemaJoiCreate = Joi.object().keys({
   email: Joi.string().email().required(),
   password: Joi.string().required().min(6),
-  // avatarUrl: Joi.
 });
 
 const shemaJoiUpdateSubscription = Joi.object().keys({
   subscription: Joi.string().valid("starter", "pro", "business"),
 });
 
+const shemaJoiVerifyEmail = Joi.object().keys({
+  email: Joi.string().email().required(),
+});
+
 const User = model("user", userShema);
 
-module.exports = { User, shemaJoiCreate, shemaJoiUpdateSubscription };
+module.exports = {
+  User,
+  shemaJoiCreate,
+  shemaJoiUpdateSubscription,
+  shemaJoiVerifyEmail,
+};
